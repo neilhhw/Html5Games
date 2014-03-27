@@ -1,0 +1,172 @@
+<!DOCTYPE>
+<html>
+<head>
+	This is a test game
+	<script type="text/javascript" src="jquery-1.4.2.js"></script>
+	<script type="text/javascript">
+		var backgroudImg = new Image();
+		var bearEyesClosedImg = new Image();
+		var mushroomImg = new Image();
+
+		var ctx;
+		var screenWidth;
+		var screenHeight;
+
+
+		var horizontalSpeed = 2;
+		var verticalSpeed = -2;
+		var bearAngle = 2;
+
+		//define a boject
+		function GameObject()
+		{
+			this.x = 0;
+			this.y = 0;
+			this.image = null;
+		}
+
+		function Mushroom(){};
+		Mushroom.prototype = new GameObject();
+
+		function Animal(){};
+		Animal.prototype = new GameObject();
+		Animal.prototype.angle = 0;
+
+		var mushroom = new Mushroom();
+		var bear = new Animal();
+
+
+		function checkIntersect (object1, object2, overlap) {
+			A1 = object1.x + overlap;
+			B1 = object1.x + object1.image.width - overlap;
+			C1 = object1.y + overlap;
+			D1 = object1.y + object1.image.height - overlap;
+
+			A2 = object2.x + overlap;
+			B2 = object2.x + object2.image.width - overlap;
+			C2 = object2.y + overlap;
+			D2 = object2.y + object2.image.height - overlap;
+
+			if (A1 > A2 && A1 < B1 || B1 > A2 && B1 < B2) 
+			{
+				if (C1 > C2 && C1 < D1 || D1 > C2 && D1 < D2) 
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		function hasBearHitMushroom () {
+			if(checkIntersect(bear, mushroom, 5))
+			{
+				horizontalSpeed = -horizontalSpeed;
+				verticalSpeed = -verticalSpeed;
+			}
+			
+		}
+
+		//check if bear reach the eage
+		function hasAnimalHitEdge () {
+			
+			if (bear.x > screenWidth - bear.image.width) 
+			{
+				if (horizontalSpeed > 0)
+					horizontalSpeed = -horizontalSpeed;
+			}
+
+			if (bear.x < -10) 
+			{
+				if (horizontalSpeed < 0)
+					horizontalSpeed = -horizontalSpeed;
+			}
+
+			if (bear.y < 0)
+			{
+				verticalSpeed = -verticalSpeed;
+			}
+
+			if (bear.y > screenHeight - bear.image.height)
+			{
+				verticalSpeed = -verticalSpeed;
+				/*
+				setTimeout(function () {
+					horizontalSpeed = 2;
+					verticalSpeed = -2;
+					bear.angle = 0;
+					bear.x = parseInt(screenWidth/2);
+					bear.y = parseInt(screenHeight/2);
+					gameLoop();
+				}, 2000);
+				*/
+			}
+		}
+
+		//draw object
+		function gameLoop()
+		{
+			ctx.clearRect(0, 0, screenWidth, screenHeight);
+			ctx.save();
+			ctx.drawImage(backgroudImg, 0, 0);
+			ctx.drawImage(mushroom.image, mushroom.x, mushroom.y);
+
+			bear.x += horizontalSpeed;
+			bear.y += verticalSpeed;
+			bear.angle += bearAngle;
+
+			ctx.translate(bear.x+(bear.image.width/2), bear.y+(bear.image.height/2));
+			ctx.rotate(bear.angle*Math.PI/180);
+
+			ctx.drawImage(bear.image, -(bear.image.width/2), -(bear.image.height/2));
+
+			ctx.restore();
+
+			hasAnimalHitEdge();
+			hasBearHitMushroom();
+		}
+
+		//load image
+		function loadImages()
+		{
+			mushroomImg.src = "images/mushroom.png";
+			backgroudImg.src = "images/forest1.jpg";
+			bearEyesClosedImg.src = "images/bear_eyesclosed.png";
+		}
+
+		//init
+		$(window).ready(function () {
+			loadImages();
+			addEventHandlers();
+			ctx = document.getElementById("canvas").getContext("2d");
+
+			screenWidth = parseInt($("#canvas").attr("width"));
+			screenHeight = parseInt($("#canvas").attr("height"));
+
+			mushroom.image = mushroomImg;
+			mushroom.x = parseInt(screenWidth/2);
+			mushroom.y = screenHeight- 40;
+
+			bear.image = bearEyesClosedImg;
+			bear.x = parseInt(screenWidth/2);
+			bear.y = parseInt(screenHeight/2);
+
+			setInterval(gameLoop, 10);
+		});
+
+		function addEventHandlers () {
+			// mouse move causes mushroom moving
+			$("#container").mousemove(function (e) {
+				mushroom.x = e.pageX - (mushroom.image.width/2);
+			})
+		}
+		
+	</script>
+</head>
+<body>
+	<div id="container", style="border:2px solid; cursor:none;
+		width:480px; height:320p;">
+		<canvas id="canvas" width="480" height="320"></canvas>
+	</div>
+</body>
+</html>
