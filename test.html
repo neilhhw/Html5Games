@@ -7,11 +7,15 @@
 		var backgroudImg = new Image();
 		var bearEyesClosedImg = new Image();
 		var mushroomImg = new Image();
+		var flowerImg = new Image();
+		var leafImg = new Image();
+		var acornImg = new Image();
+
+		var prizes = new Array();
 
 		var ctx;
 		var screenWidth;
 		var screenHeight;
-
 
 		var horizontalSpeed = 2;
 		var verticalSpeed = -2;
@@ -34,6 +38,46 @@
 
 		var mushroom = new Mushroom();
 		var bear = new Animal();
+
+		function Prize () {};
+		Prize.prototype = new GameObject();
+		Prize.prototype.row = 0;
+		Prize.prototype.col = 0;
+		Prize.prototype.isHit = false;
+
+		function initPrize () {
+			var count = 0;
+			for(var x=0; x<3; x++)
+			{
+				for(var y=0; y<23; y++)
+				{
+					prize = new Prize();
+					if(x == 0) prize.image = flowerImg;
+					if(x == 1) prize.image = acornImg;
+					if(x == 2) prize.image = leafImg;
+
+					prize.row = x;
+					prize.col = y;
+
+					prize.x = 10 + 20*prize.col;
+					prize.y = 20 + 30*prize.row;
+
+					prizes[count] = prize;
+					count++;
+				}
+			}
+		}
+
+		function drawPrizes () {
+			for (var i = 0; i < prizes.length; i++) {
+				currentPrize = prizes[i];
+				if (!currentPrize.isHit) 
+				{
+					ctx.drawImage(currentPrize.image, currentPrize.x, currentPrize.y);	
+				}
+				
+			};
+		}
 
 
 		function checkIntersect (object1, object2, overlap) {
@@ -65,6 +109,17 @@
 				verticalSpeed = -verticalSpeed;
 			}
 			
+		}
+
+		function hasBearHitPrize () {
+			for (var i = 0; i < prizes.length; i++) {
+				if(checkIntersect(bear, prizes[i], 2))
+				{
+					prizes[i].isHit = true;
+					horizontalSpeed = -horizontalSpeed;
+					verticalSpeed = verticalSpeed;
+				}
+			};
 		}
 
 		//check if bear reach the eage
@@ -111,6 +166,8 @@
 			ctx.drawImage(backgroudImg, 0, 0);
 			ctx.drawImage(mushroom.image, mushroom.x, mushroom.y);
 
+			drawPrizes();
+
 			bear.x += horizontalSpeed;
 			bear.y += verticalSpeed;
 			bear.angle += bearAngle;
@@ -124,6 +181,7 @@
 
 			hasAnimalHitEdge();
 			hasBearHitMushroom();
+			hasBearHitPrize();
 		}
 
 		//load image
@@ -132,10 +190,14 @@
 			mushroomImg.src = "images/mushroom.png";
 			backgroudImg.src = "images/forest1.jpg";
 			bearEyesClosedImg.src = "images/bear_eyesclosed.png";
+			flowerImg.src = "images/flower.png";
+			leafImg.src = "images/leaf.png";
+			acornImg.src = "images/acorn.png";
 		}
 
 		//init
 		$(window).ready(function () {
+			initPrize();
 			loadImages();
 			addEventHandlers();
 			ctx = document.getElementById("canvas").getContext("2d");
