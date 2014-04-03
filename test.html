@@ -16,9 +16,10 @@
 		var ctx;
 		var screenWidth;
 		var screenHeight;
+		var speed = 2;
 
-		var horizontalSpeed = 2;
-		var verticalSpeed = -2;
+		var horizontalSpeed = speed;
+		var verticalSpeed = -speed;
 		var bearAngle = 2;
 
 		//define a boject
@@ -63,6 +64,7 @@
 					prize.y = 20 + 30*prize.row;
 
 					prizes[count] = prize;
+					prizes[count].isHit = false;
 					count++;
 				}
 			}
@@ -91,10 +93,11 @@
 			C2 = object2.y + overlap;
 			D2 = object2.y + object2.image.height - overlap;
 
-			if (A1 > A2 && A1 < B1 || B1 > A2 && B1 < B2) 
+			if (A1 > A2 && A1 < B2 || B1 > A2 && B1 < B2) 
 			{
-				if (C1 > C2 && C1 < D1 || D1 > C2 && D1 < D2) 
+				if (C1 > C2 && C1 < D2 || D1 > C2 && D1 < D2) 
 				{
+					//console.log("A1:%d A2:%d B1:%d B2:%d C1:%d C2:%d D1:%d D2:%d", A1, A2, B1, B2, C1, C2, D1, D2);
 					return true;
 				}
 			}
@@ -105,7 +108,7 @@
 		function hasBearHitMushroom () {
 			if(checkIntersect(bear, mushroom, 5))
 			{
-				horizontalSpeed = -horizontalSpeed;
+				horizontalSpeed = horizontalSpeed;
 				verticalSpeed = -verticalSpeed;
 			}
 			
@@ -116,8 +119,8 @@
 				if(checkIntersect(bear, prizes[i], 2))
 				{
 					prizes[i].isHit = true;
-					horizontalSpeed = -horizontalSpeed;
-					verticalSpeed = verticalSpeed;
+					horizontalSpeed = horizontalSpeed;
+					verticalSpeed = -verticalSpeed;
 				}
 			};
 		}
@@ -127,18 +130,18 @@
 			
 			if (bear.x > screenWidth - bear.image.width) 
 			{
-				if (horizontalSpeed > 0)
 					horizontalSpeed = -horizontalSpeed;
 			}
 
 			if (bear.x < -10) 
 			{
-				if (horizontalSpeed < 0)
+		
 					horizontalSpeed = -horizontalSpeed;
 			}
 
 			if (bear.y < 0)
 			{
+
 				verticalSpeed = -verticalSpeed;
 			}
 
@@ -162,8 +165,9 @@
 		function gameLoop()
 		{
 			ctx.clearRect(0, 0, screenWidth, screenHeight);
-			ctx.save();
 			ctx.drawImage(backgroudImg, 0, 0);
+			ctx.save();
+
 			ctx.drawImage(mushroom.image, mushroom.x, mushroom.y);
 
 			drawPrizes();
